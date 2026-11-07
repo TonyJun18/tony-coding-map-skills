@@ -36,6 +36,20 @@ LLM 适配器章节图：20 个新增文件、+3278 行，8 站从装配走到�
 **2. `case/group-buy-trial-flow-code-map.html` — 业务功能导读场景（S5 变体）**
 拼团营销"试算"功能全览：三张图 + 14 张节点说明卡 + 10 站导览。展示能力：如何给一个**已有功能**做导读——规则树的每个分支、每个异常码、每个异步任务都有落点；绿=核心主干、橙=分支兜底、灰=复用，图例即导航。
 
+实拍截图（真实渲染效果）：
+
+**① 全景图页签** —— trigger 入口 → 规则树节点 → 折扣策略族 → 模型/外部依赖，一张图看清整个模块拓扑：
+
+![全景图](case/screenshots/trial-flow-overview.png)
+
+**② 时序图页签** —— 一次试算从 HTTP 进入到 `TrialBalanceEntity` 收口的完整调用链（含双异步并行加载）：
+
+![时序图](case/screenshots/trial-flow-sequence.png)
+
+**③ 流程图页签** —— 规则树全部分支与异常路径（参数缺失 / 降级 / 切量 / 兜底），错误码红节点即异常出口：
+
+![流程图](case/screenshots/trial-flow-flowchart.png)
+
 两张图风格一致、结构同源，差别只在数据——这正是本技能的设计：**引擎固定，场景靠数据区表达**。
 
 ## 快速开始
@@ -95,6 +109,7 @@ xfg-coding-map-skills/
 └── case/                         # 两张完整案例图，浏览器直接打开
     ├── xfg-2-1-code-map.html     #   教学场景（S1）：LLM 适配器章节
     ├── group-buy-trial-flow-code-map.html  # 业务导读场景：拼团试算全览
+    ├── screenshots/              #   案例实拍截图（README 引用）
     └── vendor/mermaid.min.js
 ```
 

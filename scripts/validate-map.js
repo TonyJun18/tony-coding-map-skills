@@ -162,6 +162,50 @@ if (tour.length < 5) warn('导览少于 5 站，主线叙事可能不完整（�
 if (tour.length > 12) warn('导览超过 12 站，跟随成本高（建议精简）');
 if (tour.length && tour[tour.length - 1].tree !== null) warn('最后一站建议是 tree:null 的总结/自由探索站');
 
+/* ── mermaid 语法隐患检查（静态可判定的两类高频坑） ── */
+console.log('\n□ mermaid 语法隐患检查');
+let mmIssues = 0;
+for (const [name, src] of Object.entries(sources)) {
+  if (!src) continue;
+  const lines = src.split('\n');
+  const first = (lines.find(l => l.trim()) || '').trim().toLowerCase();
+
+  /* 坑 1：时序图 actor 标识符为独立 token `END`/`end`（不分大小写）会与 end 块关键字冲突，
+     lexer 把它当关键字而非 ACTOR，报 "Expecting ACTOR, got 'end'"。
+     只检查 actor 位置：participant/actor 声明与消息的收发双方（消息正文里的 end 不算） */
+  if (first.startsWith('sequencediagram')) {
+    const badEnd = [];
+    lines.forEach((l, idx) => {
+      let m = l.match(/^\s*(?:participant|actor)\s+([A-Za-z_][A-Za-z0-9_]*)/);
+      if (m && /^end$/i.test(m[1])) { badEnd.push(idx + 1); return; }
+      m = l.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*(?:--?>?>|--?x|--?\)|-->|-x)\s*([A-Za-z_][A-Za-z0-9_]*)\s*:/);
+      if (m && (/^end$/i.test(m[1]) || /^end$/i.test(m[2]))) badEnd.push(idx + 1);
+    });
+    if (badEnd.length) {
+      mmIssues++;
+      err(name + '：时序图 actor 标识符存在独立 END/end（行 ' + [...new Set(badEnd)].join(',') +
+          '），与时序图 end 块关键字冲突导致解析失败 → 请改名为 ENDN / EndNode 等更长的标识符');
+    }
+  }
+
+  /* 坑 2：flowchart 嵌套 subgraph（subgraph 里再写 subgraph）在打包的 mermaid.min.js 下报语法错误，
+     需要「整体替换数据区」式生成时特别小心；规则：subgraph 深度不得超过 1 */
+  if (first.startsWith('flowchart')) {
+    let depth = 0, nested = [];
+    lines.forEach((l, idx) => {
+      const s = l.trim();
+      if (/^subgraph\b/.test(s)) { depth++; if (depth > 1) nested.push(idx + 1); }
+      else if (s === 'end' && depth > 0) depth--;
+    });
+    if (nested.length) {
+      mmIssues++;
+      err(name + '：flowchart 存在嵌套 subgraph（行 ' + [...new Set(nested)].join(',') +
+          '），打包版 mermaid.min.js 无法解析 → 请拍平为同层 subgraph（命名前缀区分分组）');
+    }
+  }
+}
+if (!mmIssues) ok('无嵌套 subgraph / END 标识符冲突');
+
 /* ── 汇总 ── */
 console.log('\n──────────────────────────');
 if (errors) { console.error('✗ 校验失败：' + errors + ' 个错误，' + warnings + ' 个警告'); process.exit(1); }

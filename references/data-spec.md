@@ -18,6 +18,10 @@
 - **FLOW_SRC（flowchart TB）**：方法级主流程 + 分支。职责：讲清"关键方法的内部逻辑与异常路径"。
 - 每个图中**新增节点标签必须带 🆕**（时序图 participant 也一样）——既是视觉标记，也是时序图渲染后自动补色的依据（含 🆕 的 actor 涂绿，否则涂灰虚线）。
 
+**mermaid 语法红线（validate-map.js 会静态拦截）**：
+- **flowchart 禁止嵌套 subgraph**：打包版 mermaid.min.js 解析不了 subgraph 里再套 subgraph（报 Syntax error）。需要分层分组时拍平为同层 subgraph，用命名前缀区分（如 `domain · trial 规则树节点`）。
+- **时序图 actor 标识符禁止用独立 `END`/`end`**（不分大小写）：会与 par/loop 块的 end 关键字冲突，lexer 报 "Expecting ACTOR, got 'end'"。改用 ENDN、EndNode 等更长标识符（别名 `as` 后的显示名不受限）。
+
 **五色 classDef 体系（保持一致，不要自创颜色）**：
 
 ```

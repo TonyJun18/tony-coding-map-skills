@@ -70,7 +70,7 @@ node scripts/validate-map.js <地图.html>
 # 2.1 打开成品后：中栏按住拖拽平移 / 滚轮缩放 / ⤢ 适配复位
 
 # 3. 安装为 WorkBuddy 技能（对话式生成）
-cp -r xfg-coding-map-skills ~/.workbuddy/skills/
+cp -r tony-coding-map-skill ~/.workbuddy/skills/
 ```
 
 安装后在 WorkBuddy 对话里直接说：
@@ -103,7 +103,7 @@ cp -r xfg-coding-map-skills ~/.workbuddy/skills/
 ## 目录结构
 
 ```
-xfg-coding-map-skills/
+tony-coding-map-skill/
 ├── SKILL.md                      # 技能入口：工作流（场景识别→素材→生成→校验→交付）
 ├── assets/
 │   ├── code-map-template.html    # 渲染引擎 + 示例数据（MAP-DATA 区间整体替换）
